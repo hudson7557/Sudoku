@@ -1,1 +1,1 @@
-# Sudoku
+# NP-Complete Puzzle - Sudoku 
