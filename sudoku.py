@@ -4,6 +4,7 @@
 # generator.
 
 import random
+import collections as collec  # used Counter to avoid sorting lists
 
 
 """
@@ -55,7 +56,7 @@ class grid:
 
             print(self._board[i])
 
-        print(self._solved)
+        # print(self._solved)
 
     def fill_grid(self):
 
@@ -251,36 +252,32 @@ class grid:
         # check each row
         for y in range(9):
 
-            current_row = []
+            curr_row = []
 
             # add all numbers from a column to the column list
             for x in range(9):
 
-                current_row.append(self._board[x][y])
+                curr_row.append(self._board[x][y])
 
-            # sort the row which will put it in the same order as _numbers
-            current_row.sort()
-
-            # compare the two, if they're not the same something is wrong
-            if current_row != self._numbers:
+            # compare the two using the dictionary returned by Counter
+            # if they're not the same something is wrong
+            if collec.Counter(curr_row) != collec.Counter(self._numbers):
 
                 return False
 
         # check each column
         for x in range(9):
 
-            current_col = []
+            curr_col = []
 
             # add all numbers from a column to the column list
             for y in range(9):
 
-                current_col.append(self._board[x][y])
+                curr_col.append(self._board[x][y])
 
-            # sort the column which will put it in the same order as _numbers
-            current_col.sort()
-
-            # compare the two, if they're not the same something is wrong
-            if current_col != self._numbers:
+            # compare the two using the dictionary returned by Counter
+            # if they're not the same something is wrong
+            if collec.Counter(curr_col) != collec.Counter(self._numbers):
 
                 return False
 
@@ -289,7 +286,7 @@ class grid:
 
             for j in range(3):
 
-                current_grid = []
+                curr_grid = []
 
                 # loop through the three by three mini-grid
                 for x in range(3):
@@ -300,13 +297,10 @@ class grid:
                         curr_x = i * 3 + x
                         curr_y = j * 3 + y
 
-                        current_grid.append(self._board[curr_x][curr_y])
-
-                # sort the list which will put it in the same order as _numbers
-                current_grid.sort()
+                        curr_grid.append(self._board[curr_x][curr_y])
 
                 # compare the two, if they're not the same something is wrong
-                if current_grid != self._numbers:
+                if collec.Counter(curr_grid) != collec.Counter(self._numbers):
 
                     return False
 
@@ -368,7 +362,7 @@ if __name__ == "__main__":
     sudoku.display()
     sudoku.solve()
     print("HERE")
-    print(sudoku.place_number(0, 0, 1))
+    # print(sudoku.place_number(0, 0, 1))
     sudoku.display()
     print("---")
     print(sudoku.verify_solution())
