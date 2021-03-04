@@ -38,7 +38,15 @@ class grid:
                        [1, 5, 0, 7, 9, 6, 0, 0, 0],
                        [2, 0, 9, 8, 4, 0, 0, 6, 0]]
 
-        self._start_board = self._board.copy()
+        self._starter_board = [[0, 2, 0, 1, 5, 0, 3, 0, 0],
+                               [9, 6, 0, 3, 2, 0, 1, 4, 8],
+                               [0, 4, 0, 6, 8, 9, 7, 0, 2],
+                               [5, 9, 3, 4, 0, 0, 2, 7, 0],
+                               [4, 7, 0, 5, 0, 3, 6, 8, 0],
+                               [0, 1, 8, 9, 7, 0, 4, 0, 5],
+                               [0, 0, 0, 2, 0, 5, 9, 1, 0],
+                               [1, 5, 0, 7, 9, 6, 0, 0, 0],
+                               [2, 0, 9, 8, 4, 0, 0, 6, 0]]
 
     # method to display the board
     def display(self):
@@ -130,17 +138,14 @@ class grid:
 
     def place_number(self, row, col, number):
 
-        # make sure the number is valid for 9x9 sudoku
-        if number in self._numbers:
+        # 0 is used to represent an empty space, since the starter board is
+        # never manipulated, a zero tells us it's a changable space
+        if self._starter_board[row][col] == 0:
 
-            # 0 is used to represent an empty space, since the starter board is
-            # never manipulated, a zero tells us it's a changable space
-            if self._starter_board[row][col] == 0:
+            # if placement is legal, do it and return True
+            self._board[row][col] = number
 
-                # if placement is legal, do it and return True
-                self._board[row][col] = number
-
-                return True
+            return True
 
         return False
 
@@ -152,20 +157,17 @@ class grid:
 
     def place_valid_number(self, row, col, number):
 
-        # make sure the number is valid for 9x9 sudoku
-        if number in self._numbers:
+        # 0 is used to represent an empty space, since the starter board is
+        # never manipulated, a zero tells us it's a changable space
+        if self._board[row][col] == 0:
 
-            # 0 is used to represent an empty space, since the starter board is
-            # never manipulated, a zero tells us it's a changable space
-            if self._board[row][col] == 0:
+            # check whether the placement is legal
+            if self.check_single_cell(row, col, number):
 
-                # check whether the placement is legal
-                if self.check_single_cell(row, col, number):
+                # if placement is legal, do it and return True
+                self._board[row][col] = number
 
-                    # if placement is legal, do it and return True
-                    self._board[row][col] = number
-
-                    return True
+                return True
 
         return False
 
@@ -176,42 +178,45 @@ class grid:
 
     def check_single_cell(self, row, col, number):
 
-        # check to see if the column is valid
-        for x in range(9):
+        # make sure the number is valid for 9x9 sudoku
+        if number in self._numbers:
 
-            # check the location and skip the number we're currently evaluating
-            if self._board[x][col] == number and x != row:
+            # check to see if the column is valid
+            for x in range(9):
 
-                return False
+                # check the location and skip the current number
+                if self._board[x][col] == number and x != row:
 
-        # check to see if the row is valid
-        for y in range(9):
+                    return False
 
-            # check the location and skip the number we're currently evaluating
-            if self._board[row][y] == number and y != col:
+            # check to see if the row is valid
+            for y in range(9):
 
-                return False
+                # check the location and skip the current number
+                if self._board[row][y] == number and y != col:
 
-        # check to see if the mini-grid is valid
-        mini_row = row // 3  # use floor because it will return a 0, 1, or 2
-        mini_col = col // 3
+                    return False
 
-        # loop through the three by three mini-grid
-        for x in range(3):
+            # check to see if the mini-grid is valid
+            mini_row = row // 3  # use floor to return a 0, 1, or 2
+            mini_col = col // 3
 
-            for y in range(3):
+            # loop through the three by three mini-grid
+            for x in range(3):
 
-                # calculate the current location once for x and y
-                curr_x = mini_row * 3 + x
-                curr_y = mini_col * 3 + y
+                for y in range(3):
 
-                # check if there is a duplicate number
-                if self._board[curr_x][curr_y] == number:
+                    # calculate the current location once for x and y
+                    curr_x = mini_row * 3 + x
+                    curr_y = mini_col * 3 + y
 
-                    # make sure the number isn't our current number
-                    if curr_x != row and curr_y != col:
+                    # check if there is a duplicate number
+                    if self._board[curr_x][curr_y] == number:
 
-                        return False
+                        # make sure the number isn't our current number
+                        if curr_x != row and curr_y != col:
+
+                            return False
 
         return True
 
@@ -233,6 +238,78 @@ class grid:
 
                     return False
 
+        self._solved = True
+        return True
+
+    """
+    Method used by check whether a completed game is correct or not by checking
+    the four rules. It will return True or False depending on what it finds.
+    """
+
+    def verify_solution(self):
+
+        # check each row
+        for y in range(9):
+
+            current_row = []
+
+            # add all numbers from a column to the column list
+            for x in range(9):
+
+                current_row.append(self._board[x][y])
+
+            # sort the row which will put it in the same order as _numbers
+            current_row.sort()
+
+            # compare the two, if they're not the same something is wrong
+            if current_row != self._numbers:
+
+                return False
+
+        # check each column
+        for x in range(9):
+
+            current_col = []
+
+            # add all numbers from a column to the column list
+            for y in range(9):
+
+                current_col.append(self._board[x][y])
+
+            # sort the column which will put it in the same order as _numbers
+            current_col.sort()
+
+            # compare the two, if they're not the same something is wrong
+            if current_col != self._numbers:
+
+                return False
+
+        # check each 3x3 grid
+        for i in range(3):
+
+            for j in range(3):
+
+                current_grid = []
+
+                # loop through the three by three mini-grid
+                for x in range(3):
+
+                    for y in range(3):
+
+                        # calculate the current location for x and y
+                        curr_x = i * 3 + x
+                        curr_y = j * 3 + y
+
+                        current_grid.append(self._board[curr_x][curr_y])
+
+                # sort the list which will put it in the same order as _numbers
+                current_grid.sort()
+
+                # compare the two, if they're not the same something is wrong
+                if current_grid != self._numbers:
+
+                    return False
+
         return True
 
     """
@@ -248,7 +325,7 @@ class grid:
         memo_table = [[[] for x in range(9)] for y in range(9)]
 
         # while the puzzle is not solved
-        while self._solved is False:
+        while self.contains_zero():
 
             # look through the puzzle to find empty spaces
             for x in range(9):
@@ -285,14 +362,15 @@ class grid:
 
                         self.place_valid_number(x, y, curr_memo[0])
 
-            # run check_zero to set _solved
-            if not self.contains_zero():
-
-                self._solved = True
-
 
 if __name__ == "__main__":
     sudoku = grid()
     sudoku.display()
     sudoku.solve()
+    print("HERE")
+    print(sudoku.place_number(0, 0, 1))
+    sudoku.display()
+    print("---")
+    print(sudoku.verify_solution())
+    print("---")
     sudoku.display()
