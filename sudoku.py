@@ -26,26 +26,19 @@ class grid:
                                 [1, 5, 4, 7, 9, 6, 8, 2, 3],
                                 [2, 3, 9, 8, 4, 1, 5, 6, 7]]
 
-        self._board = [[0, 2, 7, 1, 5, 4, 3, 9, 6],
-                       [9, 6, 5, 3, 2, 7, 1, 4, 8],
-                       [3, 4, 1, 6, 8, 9, 7, 5, 2],
-                       [5, 9, 3, 4, 6, 8, 2, 7, 1],
-                       [4, 7, 2, 5, 1, 3, 6, 8, 9],
-                       [6, 1, 8, 9, 7, 2, 4, 3, 5],
-                       [7, 8, 6, 2, 3, 5, 9, 1, 4],
-                       [1, 5, 4, 7, 9, 6, 8, 2, 3],
-                       [2, 3, 9, 8, 4, 1, 5, 6, 7]]
-
-        self._starter_board = [[0, 2, 7, 1, 5, 4, 3, 9, 6],
-                               [9, 6, 5, 3, 2, 7, 1, 4, 8],
-                               [3, 4, 1, 6, 8, 9, 7, 5, 2],
-                               [5, 9, 3, 4, 6, 8, 2, 7, 1],
-                               [4, 7, 2, 5, 1, 3, 6, 8, 9],
-                               [6, 1, 8, 9, 7, 2, 4, 3, 5],
-                               [7, 8, 6, 2, 3, 5, 9, 1, 4],
-                               [1, 5, 4, 7, 9, 6, 8, 2, 3],
-                               [2, 3, 9, 8, 4, 1, 5, 6, 7]]
         self._solved = False
+
+        self._board = [[0, 2, 0, 1, 5, 0, 3, 0, 0],
+                       [9, 6, 0, 3, 2, 0, 1, 4, 8],
+                       [0, 4, 0, 6, 8, 9, 7, 0, 2],
+                       [5, 9, 3, 4, 0, 0, 2, 7, 0],
+                       [4, 7, 0, 5, 0, 3, 6, 8, 0],
+                       [0, 1, 8, 9, 7, 0, 4, 0, 5],
+                       [0, 0, 0, 2, 0, 5, 9, 1, 0],
+                       [1, 5, 0, 7, 9, 6, 0, 0, 0],
+                       [2, 0, 9, 8, 4, 0, 0, 6, 0]]
+
+        self._start_board = self._board.copy()
 
     # method to display the board
     def display(self):
@@ -53,6 +46,8 @@ class grid:
         for i in range(len(self._board)):
 
             print(self._board[i])
+
+        print(self._solved)
 
     def fill_grid(self):
 
@@ -81,13 +76,13 @@ class grid:
 
         return grid
 
-    def contains_zero(self, grid):
+    def contains_zero(self):
 
         for i in range(9):
 
             for j in range(9):
 
-                if grid[i][j] == 0:
+                if self._board[i][j] == 0:
 
                     return True
 
@@ -125,7 +120,7 @@ class grid:
                     valid = False
 
         return valid
-        
+
     """
     Method used to place a number, it checks to make sure the number is valid
     for 9x9 sudoku, and that the position you are targeting is not from the
@@ -162,7 +157,7 @@ class grid:
 
             # 0 is used to represent an empty space, since the starter board is
             # never manipulated, a zero tells us it's a changable space
-            if self._starter_board[row][col] == 0:
+            if self._board[row][col] == 0:
 
                 # check whether the placement is legal
                 if self.check_single_cell(row, col, number):
@@ -241,40 +236,63 @@ class grid:
         return True
 
     """
-    Method used to solve a sudoku puzzle using recursive calls to make
-    assumptions and place numbers within the board.
+    Method used to solve a sudoku puzzle using iteration and memoization to
+    make assumptions and place numbers within the board. Purely of my own
+    design I just wanted to see if I could solve the problem on my own and
+    disregarded efficiency in this instance.
     """
-    
+
     def solve(self):
 
-        # while _solved is False 
+        # table used for memoization, similar to a dp_table
+        memo_table = [[[] for x in range(9)] for y in range(9)]
 
-        # look through the puzzle to find empty spaces. (for loop)
+        # while the puzzle is not solved
+        while self._solved is False:
 
-            # once you find an empty space check if it's in the memo table
+            # look through the puzzle to find empty spaces
+            for x in range(9):
 
-                # if it's memoized set that list to possibe_nums
+                for y in range(9):
 
-                # if it's not we copy a set of all possible solutions 
-        
-            #  iterate through list of possible numbers
+                    # check if the empty space is in the memo table
+                    if self._board[x][y] == 0:
 
-                # if there is only one valid placement, place it 
+                        curr_memo = memo_table[x][y]
 
-                # if there is no valid placement skip it AND place possible
-                # numbers in the memo table
+                        # if it's not memoized set that list
+                        if curr_memo == []:
 
-        # run check_zero to set _solved
+                            curr_memo = self._numbers.copy()
 
+                    remove_these = []
 
+                    #  iterate through possible numbers to see what's valid
+                    for i in range(len(curr_memo)):
 
+                        # if a number is not valid it's stored to be removed
+                        if not self.check_single_cell(x, y, curr_memo[i]):
+
+                            remove_these.append(curr_memo[i])
+
+                    # remove all the numbers which are not possible anymore
+                    for i in range(len(remove_these)):
+
+                        curr_memo.remove(remove_these[i])
+
+                    # if there is only one valid placement, place it
+                    if len(curr_memo) == 1:
+
+                        self.place_valid_number(x, y, curr_memo[0])
+
+            # run check_zero to set _solved
+            if not self.contains_zero():
+
+                self._solved = True
 
 
 if __name__ == "__main__":
     sudoku = grid()
     sudoku.display()
-    print(sudoku.place_number(0, 0, 7))
+    sudoku.solve()
     sudoku.display()
-    print(sudoku.place_number(0, 0, 8))
-    sudoku.display()
-    print(sudoku.place_valid_number(0, 0, 4))
