@@ -45,6 +45,7 @@ class grid:
                                [7, 8, 6, 2, 3, 5, 9, 1, 4],
                                [1, 5, 4, 7, 9, 6, 8, 2, 3],
                                [2, 3, 9, 8, 4, 1, 5, 6, 7]]
+        self._solved = False
 
     # method to display the board
     def display(self):
@@ -70,7 +71,7 @@ class grid:
 
                     for y in range(9):
 
-                        if self.valid(grid, x, y, number) is True and grid[x][y] == 0:
+                        if self.valid(grid, x, y, number) and grid[x][y] == 0:
 
                             grid[x][y] = number
 
@@ -92,6 +93,39 @@ class grid:
 
         return False
 
+    # method to see if a placement is valid
+    def valid(self, row, col, number):
+
+        valid = True
+
+        # check to see if the column is valid
+        for x in range(9):
+
+            if self._board[x][col] == number:
+
+                valid = False
+
+        # check to see if the row is valid
+        for y in range(9):
+
+            if self._board[row][y] == number:
+
+                valid = False
+
+        # check to see if the mini-grid is valid
+        mini_row = row // 3  # use floor because it will return a 0, 1, or 2
+        mini_col = col // 3
+
+        for x in range(3):
+
+            for y in range(3):
+
+                if self._board[mini_row * 3 + x][mini_col * 3 + y] == number:
+
+                    valid = False
+
+        return valid
+        
     """
     Method used to place a number, it checks to make sure the number is valid
     for 9x9 sudoku, and that the position you are targeting is not from the
@@ -131,7 +165,7 @@ class grid:
             if self._starter_board[row][col] == 0:
 
                 # check whether the placement is legal
-                if self.check_single_cell(row, col, number) is True:
+                if self.check_single_cell(row, col, number):
 
                     # if placement is legal, do it and return True
                     self._board[row][col] = number
@@ -139,26 +173,6 @@ class grid:
                     return True
 
         return False
-
-    """
-    Method used to iterate through a board, it calls check_single_cell on each
-    cell and determines whether a completed game and soultion is correct.
-    """
-
-    def check_solution(self):
-
-        # loop through the 9x9 board
-        for i in range(9):
-
-            for j in range(9):
-
-                # call the check_single_cell method and return false if a
-                # invalid placement is made
-                if self.check_single_cell(i, j, self._board[i][j]) is False:
-
-                    return False
-
-        return True
 
     """
     Method used by check_solution to check each cell against the three rules.
@@ -171,7 +185,7 @@ class grid:
         for x in range(9):
 
             # check the location and skip the number we're currently evaluating
-            if (self._board[x][col] == number and x != row):
+            if self._board[x][col] == number and x != row:
 
                 return False
 
@@ -179,7 +193,7 @@ class grid:
         for y in range(9):
 
             # check the location and skip the number we're currently evaluating
-            if (self._board[row][y] == number and y != col):
+            if self._board[row][y] == number and y != col:
 
                 return False
 
@@ -197,47 +211,63 @@ class grid:
                 curr_y = mini_col * 3 + y
 
                 # check if there is a duplicate number
-                if (self._board[curr_x][curr_y] == number):
+                if self._board[curr_x][curr_y] == number:
 
                     # make sure the number isn't our current number
-                    if (curr_x != row and curr_y != col):
+                    if curr_x != row and curr_y != col:
 
                         return False
 
         return True
 
-    # method to see if a placement is valid
-    def valid(self, row, col, number):
+    """
+    Method used to iterate through a board, it calls check_single_cell on each
+    cell and determines whether a completed game and soultion is correct.
+    """
 
-        valid = True
+    def check_solution(self):
 
-        # check to see if the column is valid
-        for x in range(9):
+        # loop through the 9x9 board
+        for i in range(9):
 
-            if (self._board[x][col] == number):
+            for j in range(9):
 
-                valid = False
+                # call the check_single_cell method and return false if a
+                # invalid placement is made
+                if not self.check_single_cell(i, j, self._board[i][j]):
 
-        # check to see if the row is valid
-        for y in range(9):
+                    return False
 
-            if (self._board[row][y] == number):
+        return True
 
-                valid = False
+    """
+    Method used to solve a sudoku puzzle using recursive calls to make
+    assumptions and place numbers within the board.
+    """
+    
+    def solve(self):
 
-        # check to see if the mini-grid is valid
-        mini_row = row // 3  # use floor because it will return a 0, 1, or 2
-        mini_col = col // 3
+        # while _solved is False 
 
-        for x in range(3):
+        # look through the puzzle to find empty spaces. (for loop)
 
-            for y in range(3):
+            # once you find an empty space check if it's in the memo table
 
-                if (self._board[mini_row * 3 + x][mini_col * 3 + y] == number):
+                # if it's memoized set that list to possibe_nums
 
-                    valid = False
+                # if it's not we copy a set of all possible solutions 
+        
+            #  iterate through list of possible numbers
 
-        return valid
+                # if there is only one valid placement, place it 
+
+                # if there is no valid placement skip it AND place possible
+                # numbers in the memo table
+
+        # run check_zero to set _solved
+
+
+
 
 
 if __name__ == "__main__":
