@@ -422,7 +422,7 @@ numbers.")
                     # if there is only one valid placement, place it
                     if len(curr_memo) == 1:
 
-                        self.place_valid_number(x, y, curr_memo[0])
+                        self.place_number(x, y, curr_memo[0])
 
         self.print_board()
 
