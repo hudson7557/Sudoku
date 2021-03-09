@@ -1,20 +1,23 @@
+# Scott Hudson
 # NP-Complete Puzzle - Sudoku 
 
-        # while _solved is False 
+# Instructions
 
-        # look through the puzzle to find empty spaces. (for loop)
+To run you can use python3 sudoku.py
 
-            # once you find an empty space check if it's in the memo table
+The game will display instructions along with the board. 
 
-                # if it's memoized set that list to possibe_nums
+The user can enter a command to place a number, toggle the helper, or use an auto solver. 
 
-                # if it's not we copy a set of all possible solutions 
-        
-            #  iterate through list of possible numbers
+To place a number use the coordinates followed by the number: Ex. "1, 1, 8" will place 8 in the 1st row, 1st column.
 
-                # if there is only one valid placement, place it 
+To toggle the helper, which prevents you from making mistakes use "Helper".
 
-                # if there is no valid placement skip it AND place possible
-                # numbers in the memo table
+To use the auto solve feature, use "Solve". 
 
-        # run check_zero to set _solved
+# Notes
+
+This was meant to be an exploration of an NP-Complete puzzle problem, in this case, Sudoku. The program uses a class to set up the board and methods withing that class to
+alter game state, place numbers, detect complete and correct solutions, and solve the puzzle for the user. 
+
+Analysis of the solver and verifcation algorithms can be found in the write up.
