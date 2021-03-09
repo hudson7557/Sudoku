@@ -13,18 +13,12 @@ A class which is used to store and maintain a sudoku game board
 
 class grid:
 
-    # class constructor
+    """
+    Class constructor used to maintain a sudoku board, validate input, and
+    track state.
+    """
     def __init__(self):
         self._numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        self._solution_board = [[8, 2, 7, 1, 5, 4, 3, 9, 6],
-                                [9, 6, 5, 3, 2, 7, 1, 4, 8],
-                                [3, 4, 1, 6, 8, 9, 7, 5, 2],
-                                [5, 9, 3, 4, 6, 8, 2, 7, 1],
-                                [4, 7, 2, 5, 1, 3, 6, 8, 9],
-                                [6, 1, 8, 9, 7, 2, 4, 3, 5],
-                                [7, 8, 6, 2, 3, 5, 9, 1, 4],
-                                [1, 5, 4, 7, 9, 6, 8, 2, 3],
-                                [2, 3, 9, 8, 4, 1, 5, 6, 7]]
 
         self._solved = False
 
@@ -50,61 +44,89 @@ class grid:
 
         self._helper_on = False
 
-    # method to display the board
+    """
+    Tester method to display the board line by line.
+    """
     def display(self):
 
         for i in range(len(self._board)):
 
             print(self._board[i])
 
+    """
+    Method used to get input from the user, it calls certain functions
+    depending on what it recieves as input and validates input.
+    """
+
     def get_input(self):
 
+        # display the prompt and capture user input
         user_command = input("Please enter the row, column, and number: ")
 
+        # remove any excess white space
         user_command.strip()
 
+        # Helper results in a call to the togglehelper method
         if user_command == "Helper":
 
             self.toggle_helper()
 
+        # Solve results in a call to the solve method
         elif user_command == "Solve":
 
             self.solve()
 
+        # if the input isn't one of our methods we process it
         else:
 
+            # split it into an array to make life easy
             command_array = user_command.split(",")
 
+            # give these initial values to allow try to work
             row = 0
             col = 0
             num = 0
 
+            # try to assign values
             try:
+                # row and col are the input minus 1 to adjust from the user
+                # index to array indexing
                 row = int(command_array[0].strip()) - 1
 
                 col = int(command_array[1].strip()) - 1
 
                 num = int(command_array[2].strip())
 
+            # if there weren't enough numbers input
             except IndexError:
 
                 print("*Not enough numbers provided.")
 
+            # if a int wasn't entered
             except ValueError:
 
                 print("*Opps, please enter valid numbers.")
 
+            # if either of the above exceptions occurs, the values will have
+            # their initial value, we catch that and return.
             if (row, col, num) == (0, 0, 0):
 
                 return
 
+            # if helper is on we use place_valid_number to ensure mistakes
+            # can't be made
             if self._helper_on:
 
                 self.place_valid_number(row, col, num)
 
+            # if helper is off we use place_number
             else:
 
                 self.place_number(row, col, num)
+
+    """
+    Method to toggle whether helper is on or not, it displays the current state
+    """
 
     def toggle_helper(self):
 
@@ -120,6 +142,11 @@ incorrect numbers.")
             print("Helper is now off, you will be able to place incorrect \
 numbers.")
 
+    """
+    Method to determine whether the board has any empty spaces in it which are
+    represented by a zero.
+    """
+
     def contains_zero(self):
 
         for i in range(9):
@@ -131,39 +158,6 @@ numbers.")
                     return True
 
         return False
-
-    # method to see if a placement is valid
-    def valid(self, row, col, number):
-
-        valid = True
-
-        # check to see if the column is valid
-        for x in range(9):
-
-            if self._board[x][col] == number:
-
-                valid = False
-
-        # check to see if the row is valid
-        for y in range(9):
-
-            if self._board[row][y] == number:
-
-                valid = False
-
-        # check to see if the mini-grid is valid
-        mini_row = row // 3  # use floor because it will return a 0, 1, or 2
-        mini_col = col // 3
-
-        for x in range(3):
-
-            for y in range(3):
-
-                if self._board[mini_row * 3 + x][mini_col * 3 + y] == number:
-
-                    valid = False
-
-        return valid
 
     """
     Method used to place a number, it checks to make sure the number is valid
@@ -224,28 +218,40 @@ numbers.")
         header = "       1   2   3   4   5   6   7   8   9"
 
         bar = "      -----------------------------------"
+
         print()
         print(header)
         print()
+
+        # put the lines together from the array
         for i in range(len(self._board)):
 
+            # add index number to the display
             line = str(i + 1)
 
+            # bars are used for styling
             line = line + "    | "
 
+            # add each cell to the line
             for j in range(len(self._board)):
 
                 line = line + str(self._board[i][j]) + " | "
 
+            # print a bar and then the line
             print(bar)
             print(line)
 
+        # cap it off with another bar and white space
         print(bar)
         print()
 
     """
     Method used to check if a number is valid in a cell or not, it's part of
     place_valid_number and doesn't allow the user to place erronius numbers.
+    It is losely based off of answers to Algorithm for solving Sudoku post on
+    stack exchange. Though I changed a lot because I thought most of them were
+    pretty bad.
+    https://stackoverflow.com/questions/1697334/algorithm-for-solving-sudoku
     """
 
     def check_single_cell(self, row, col, number):
@@ -377,6 +383,8 @@ numbers.")
 
         # table used for memoization, similar to a dp_table
         memo_table = [[[] for x in range(9)] for y in range(9)]
+
+        self._board = self._starter_board.copy()
 
         # while the puzzle is not solved
         while self.contains_zero():
