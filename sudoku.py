@@ -3,7 +3,6 @@
 # Medium difficulty sudoku game which comes with a solver, GUI, and puzzle
 # generator.
 
-import random
 import collections as collec  # used Counter to avoid sorting lists
 
 
@@ -49,6 +48,8 @@ class grid:
                                [1, 5, 0, 7, 9, 6, 0, 0, 0],
                                [2, 0, 9, 8, 4, 0, 0, 6, 0]]
 
+        self._helper_on = False
+
     # method to display the board
     def display(self):
 
@@ -56,32 +57,68 @@ class grid:
 
             print(self._board[i])
 
-    def fill_grid(self):
+    def get_input(self):
 
-        has_zero = True
+        user_command = input("Please enter the row, column, and number: ")
 
-        while has_zero is True:
+        user_command.strip()
 
-            # use shuffle to get a different order each time
-            grid = [[0 for row in range(9)] for col in range(9)]
+        if user_command == "Helper":
 
-            random.shuffle(self._numbers)
+            self.toggle_helper()
 
-            for number in self._numbers:
+        elif user_command == "Solve":
 
-                for x in range(9):
+            self.solve()
 
-                    for y in range(9):
+        else:
 
-                        if self.valid(grid, x, y, number) and grid[x][y] == 0:
+            command_array = user_command.split(",")
 
-                            grid[x][y] = number
+            row = 0
+            col = 0
+            num = 0
 
-            has_zero = self.contains_zero(grid)
-            self._board = grid
-            self.display()
+            try:
+                row = int(command_array[0].strip()) - 1
 
-        return grid
+                col = int(command_array[1].strip()) - 1
+
+                num = int(command_array[2].strip())
+
+            except IndexError:
+
+                print("*Not enough numbers provided.")
+
+            except ValueError:
+
+                print("*Opps, please enter valid numbers.")
+
+            if (row, col, num) == (0, 0, 0):
+
+                return
+
+            if self._helper_on:
+
+                self.place_valid_number(row, col, num)
+
+            else:
+
+                self.place_number(row, col, num)
+
+    def toggle_helper(self):
+
+        self._helper_on = not self._helper_on
+
+        if self._helper_on:
+
+            print("Helper is now on, you will not be able to place \
+incorrect numbers.")
+
+        elif not self._helper_on:
+
+            print("Helper is now off, you will be able to place incorrect \
+numbers.")
 
     def contains_zero(self):
 
@@ -146,6 +183,10 @@ class grid:
 
             return True
 
+        else:
+
+            print("This space has a starter number and cannot be overwritten!")
+
         return False
 
     """
@@ -168,20 +209,29 @@ class grid:
 
                 return True
 
+        else:
+
+            print("This space has a starter number and cannot be overwritten!")
+
         return False
 
     """
-    Method used by check_solution to check each cell against the three rules.
-    It will return True or False depending on what it finds.
+    Method used to display the board in a 9x9 grid in the CLI
     """
 
     def print_board(self):
 
-        bar = " -----------------------------------"
+        header = "       1   2   3   4   5   6   7   8   9"
 
+        bar = "      -----------------------------------"
+        print()
+        print(header)
+        print()
         for i in range(len(self._board)):
 
-            line = "| "
+            line = str(i + 1)
+
+            line = line + "    | "
 
             for j in range(len(self._board)):
 
@@ -191,10 +241,11 @@ class grid:
             print(line)
 
         print(bar)
+        print()
 
     """
-    Method used by check_solution to check each cell against the three rules.
-    It will return True or False depending on what it finds.
+    Method used to check if a number is valid in a cell or not, it's part of
+    place_valid_number and doesn't allow the user to place erronius numbers.
     """
 
     def check_single_cell(self, row, col, number):
@@ -239,27 +290,6 @@ class grid:
 
                             return False
 
-        return True
-
-    """
-    Method used to iterate through a board, it calls check_single_cell on each
-    cell and determines whether a completed game and soultion is correct.
-    """
-
-    def check_solution(self):
-
-        # loop through the 9x9 board
-        for i in range(9):
-
-            for j in range(9):
-
-                # call the check_single_cell method and return false if a
-                # invalid placement is made
-                if not self.check_single_cell(i, j, self._board[i][j]):
-
-                    return False
-
-        self._solved = True
         return True
 
     """
@@ -332,6 +362,8 @@ class grid:
 
         print("Solved correctly, nice work!")
 
+        self._solved = True
+
         return True
 
     """
@@ -388,6 +420,29 @@ class grid:
 
 
 if __name__ == "__main__":
+
     sudoku = grid()
-    sudoku.solve()
-    sudoku.verify_solution()
+
+    print("---Welcome to command line sudoku!---")
+    print()
+    print("You can toggle whether the game allows you to make a mistake \
+or not by entering the command 'Helper'")
+    print()
+    print("You can solve the puzzle at any time by enterning 'Solve'")
+    print()
+    print("Please enter the column number and row you would like to place \
+the number in followed by the number you would like to place seperated by \
+commas and spaces.")
+    print("You can use the grid numbers around the board to track the index.")
+    print("It should look something like this, '1, 1, 5'")
+    print()
+
+    while not sudoku._solved:
+
+        sudoku.print_board()
+
+        sudoku.get_input()
+
+        if not sudoku.contains_zero():
+
+            sudoku.verify_solution()
