@@ -56,8 +56,6 @@ class grid:
 
             print(self._board[i])
 
-        # print(self._solved)
-
     def fill_grid(self):
 
         has_zero = True
@@ -177,6 +175,28 @@ class grid:
     It will return True or False depending on what it finds.
     """
 
+    def print_board(self):
+
+        bar = " -----------------------------------"
+
+        for i in range(len(self._board)):
+
+            line = "| "
+
+            for j in range(len(self._board)):
+
+                line = line + str(self._board[i][j]) + " | "
+
+            print(bar)
+            print(line)
+
+        print(bar)
+
+    """
+    Method used by check_solution to check each cell against the three rules.
+    It will return True or False depending on what it finds.
+    """
+
     def check_single_cell(self, row, col, number):
 
         # make sure the number is valid for 9x9 sudoku
@@ -263,6 +283,8 @@ class grid:
             # if they're not the same something is wrong
             if collec.Counter(curr_row) != collec.Counter(self._numbers):
 
+                print("A number is wrong, please try again")
+
                 return False
 
         # check each column
@@ -278,6 +300,8 @@ class grid:
             # compare the two using the dictionary returned by Counter
             # if they're not the same something is wrong
             if collec.Counter(curr_col) != collec.Counter(self._numbers):
+
+                print("A number is wrong, please try again")
 
                 return False
 
@@ -302,7 +326,11 @@ class grid:
                 # compare the two, if they're not the same something is wrong
                 if collec.Counter(curr_grid) != collec.Counter(self._numbers):
 
+                    print("A number is wrong, please try again")
+
                     return False
+
+        print("Solved correctly, nice work!")
 
         return True
 
@@ -356,15 +384,10 @@ class grid:
 
                         self.place_valid_number(x, y, curr_memo[0])
 
+        self.print_board()
+
 
 if __name__ == "__main__":
     sudoku = grid()
-    sudoku.display()
     sudoku.solve()
-    print("HERE")
-    # print(sudoku.place_number(0, 0, 1))
-    sudoku.display()
-    print("---")
-    print(sudoku.verify_solution())
-    print("---")
-    sudoku.display()
+    sudoku.verify_solution()
